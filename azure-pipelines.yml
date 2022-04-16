@@ -80,7 +80,7 @@ stages:
         containerRegistry: 'wt-ACR'
         repository: 'bootcamp-app'
         command: 'push'
-        tags: '$(Build.BuildId)'
+
 
 
 
