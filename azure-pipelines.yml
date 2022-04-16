@@ -95,8 +95,10 @@ stages:
   - group: vault secrets - stage
 
   jobs:
-  - deployment: Deploy
-    environment: stage
+  - deployment: deployToStage
+    environment:
+      name: stage
+      resourceType: VirtualMachine
     strategy:
       runOnce:
         deploy:
@@ -105,7 +107,7 @@ stages:
             displayName: Clone latest ansible repo
 
           - task: Ansible@0
-            displayName: Ensure docker is installed on all machines and copy .env to VMs
+            displayName: Ensure docker is installed on all machines
             inputs:
               ansibleInterface: 'agentMachine'
               playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/VM-configure.yaml'
@@ -117,11 +119,11 @@ stages:
 
           
 
-          - task: DeleteFiles@1
-            displayName: Delete .env file
-            inputs:
-              SourceFolder: '$(System.DefaultWorkingDirectory)'
-              Contents: '.env'
+          # - task: DeleteFiles@1
+          #   displayName: Delete .env file
+          #   inputs:
+          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
+          #     Contents: '.env'
   
 
 
