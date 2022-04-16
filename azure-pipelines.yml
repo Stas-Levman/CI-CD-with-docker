@@ -64,7 +64,7 @@ stages:
       displayName: Docker build
       inputs:
         command: 'build'
-        Dockerfile: 'Dockerfile'
+        Dockerfile: 'dockerfile'
   
   # - job: Push
   #   displayName: Push to registry
