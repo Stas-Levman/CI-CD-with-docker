@@ -59,6 +59,8 @@ stages:
     steps:
     - checkout: self
       displayName: Clone latest web-application repo
+    
+    
 
     - task: Docker@2
       displayName: Docker build
