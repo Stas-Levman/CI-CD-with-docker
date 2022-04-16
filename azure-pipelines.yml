@@ -39,7 +39,7 @@ trigger:
     - '*' 
   paths:
     exclude:
-    - azure-pipelines.yml
+    - azure-pipelines.'*'
     - templates/*
     - templates
     - README.md
