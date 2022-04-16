@@ -9,4 +9,4 @@ steps:
     COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
     OKTA_CLIENT_ID=$(OKTA-client-ID-stage)
     OKTA_CLIENT_SECRET=$(okta-client-secret-stage)" | cat > docker-env.txt
-  displayName: Create .env file
+  displayName: Create docker env file
