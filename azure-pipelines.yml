@@ -96,7 +96,9 @@ stages:
 
   jobs:
   - deployment: Deploy
-    environment: stage
+    environment:
+      name: stage
+      resourceType: VirtualMachine
     strategy:
       runOnce:
         deploy:
@@ -117,11 +119,11 @@ stages:
 
           
 
-          - task: DeleteFiles@1
-            displayName: Delete .env file
-            inputs:
-              SourceFolder: '$(System.DefaultWorkingDirectory)'
-              Contents: '.env'
+          # - task: DeleteFiles@1
+          #   displayName: Delete .env file
+          #   inputs:
+          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
+          #     Contents: '.env'
   
 
 
