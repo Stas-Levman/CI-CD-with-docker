@@ -95,6 +95,20 @@ stages:
   - group: vault secrets - stage
 
   jobs:
+
+  - job: installDocker
+    displayName: Install docker
+
+    steps:
+      - task: Ansible@0
+        displayName: Ensure docker is installed on all machines
+        inputs:
+          ansibleInterface: 'agentMachine'
+          playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/VM-configure.yaml'
+          inventoriesAgentMachine: 'noInventory'
+          failOnStdErr: false
+          args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
+
   - deployment: deployToStage
     environment:
       name: stage
