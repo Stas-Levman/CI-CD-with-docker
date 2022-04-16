@@ -6,7 +6,7 @@ resources:
   - repository: Weight-tracker-ansible-pipeline
     type: github
     name: sincros121/Weight-tracker-ansible-pipeline
-    ref: main
+    ref: docker
     endpoint: sincros121
 
 #   - repository: Azure-DevOps-CI-CD      
@@ -105,7 +105,7 @@ stages:
             displayName: Clone latest ansible repo
 
           - task: Ansible@0
-            displayName: Ensure docker is installed on all machines
+            displayName: Ensure docker is installed on all machines and copy .env to VMs
             inputs:
               ansibleInterface: 'agentMachine'
               playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/VM-configure.yaml'
@@ -113,18 +113,9 @@ stages:
               failOnStdErr: false
               args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
 
-
           - template: templates/env-creation-stage.yaml
 
-          - task: Ansible@0
-            displayName: Deploy using ansible
-            timeoutInMinutes: 6
-            inputs:
-              ansibleInterface: 'agentMachine'
-              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
-              inventoriesAgentMachine: 'noInventory'
-              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-              failOnStdErr: false
+          
 
           - task: DeleteFiles@1
             displayName: Delete .env file
