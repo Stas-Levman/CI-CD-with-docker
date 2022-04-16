@@ -6,7 +6,7 @@ resources:
   - repository: Weight-tracker-ansible-pipeline
     type: github
     name: sincros121/Weight-tracker-ansible-pipeline
-    ref: docker
+    ref: main
     endpoint: sincros121
 
 #   - repository: Azure-DevOps-CI-CD      
