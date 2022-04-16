@@ -78,7 +78,7 @@ stages:
     - task: Docker@2
       inputs:
         containerRegistry: 'wt-ACR'
-        tags: '$(Build.BuildId)'
+        repository: 'bootcamp-app'
         command: 'push'
 
 
