@@ -46,8 +46,8 @@ trigger:
     - dockerfile
     - .'*'
 
-# pool: 'self-hosted-stas'
-pool: azure-vm
+pool: 'self-hosted-stas'
+# pool: azure-vm
 
 stages:
 - stage: CI
