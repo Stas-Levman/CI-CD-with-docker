@@ -67,6 +67,7 @@ stages:
         Dockerfile: 'dockerfile'
         tags: '$(Build.BuildId)'
         repository: 'bootcamp-app'
+        containerRegistry: 'wt-ACR'
 
   
   - job: Push
