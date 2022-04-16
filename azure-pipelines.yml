@@ -67,7 +67,7 @@ stages:
         Dockerfile: 'dockerfile'
         tags: '$(Build.BuildId)'
         repository: 'bootcamp-app'
-        containerRegistry: 'wt-ACR'
+        containerRegistry: 'private-registry'
 
   
   - job: Push
@@ -81,7 +81,7 @@ stages:
         containerRegistry: 'private-registry'
         repository: 'bootcamp-app'
         command: 'push'
-        # tags: '$(Build.BuildId)'
+        tags: '$(Build.BuildId)'
 
 
 
