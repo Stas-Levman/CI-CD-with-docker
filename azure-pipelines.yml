@@ -107,7 +107,7 @@ stages:
             displayName: Clone latest ansible repo
 
           - task: Ansible@0
-            displayName: Ensure docker is installed on all machines and copy .env to VMs
+            displayName: Ensure docker is installed on all machines
             inputs:
               ansibleInterface: 'agentMachine'
               playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/VM-configure.yaml'
