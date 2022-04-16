@@ -34,9 +34,9 @@
 #         - Stage_infrastructure
 
 trigger:
-  branches:
-    include:
-    - '*' 
+  # branches:
+  #   include:
+  #   - '*' 
   paths:
     exclude:
     - azure-pipelines.'*'
@@ -78,7 +78,7 @@ stages:
     - task: Docker@2
       inputs:
         containerRegistry: 'wt-ACR'
-        repository: 'bootcamp-app'
+        tags: '$(Build.BuildId)'
         command: 'push'
 
 
