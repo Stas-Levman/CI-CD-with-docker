@@ -39,7 +39,7 @@ trigger:
   #   - '*' 
   paths:
     exclude:
-    - azure-pipelines.'*'
+    - azure-pipelines.yml
     - templates/*
     - templates
     - README.md
@@ -78,12 +78,9 @@ stages:
     steps:
     - task: Docker@2
       inputs:
-        # containerRegistry: 'wt-ACR'
-        containerRegistry: 'wtregistry01.azurecr.io'
+        containerRegistry: 'wt-ACR'
         repository: bootcamp-app
         command: 'push'
-
-
 
 
 
