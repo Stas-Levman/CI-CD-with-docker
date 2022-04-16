@@ -65,17 +65,22 @@ stages:
       inputs:
         command: 'build'
         Dockerfile: 'dockerfile'
-  
-  # - job: Push
-  #   displayName: Push to registry
-  #   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        tags: '$(Build.BuildId)'
+        repository: 'bootcamp-app'
 
-  #   steps:
-  #   - task: Docker@2
-  #     inputs:
-  #       containerRegistry: 'wt-ACR'
-  #       repository: $(Build.BuildId)
-  #       command: 'push'
+  
+  - job: Push
+    displayName: Push to registry
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    dependsOn: Build
+
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'wt-ACR'
+        repository: 'bootcamp-app'
+        command: 'push'
+        tags: '$(Build.BuildId)'
 
 
 
