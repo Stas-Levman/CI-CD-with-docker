@@ -81,7 +81,7 @@ stages:
         containerRegistry: 'private-registry'
         repository: 'bootcamp-app'
         command: 'push'
-        tags: '$(Build.BuildId)'
+        # tags: '$(Build.BuildId)'
 
 
 
