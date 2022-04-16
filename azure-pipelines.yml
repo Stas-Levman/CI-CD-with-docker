@@ -78,7 +78,8 @@ stages:
     steps:
     - task: Docker@2
       inputs:
-        containerRegistry: 'wt-ACR'
+        # containerRegistry: 'wt-ACR'
+        containerRegistry: 'wtregistry01.azurecr.io'
         repository: bootcamp-app
         command: 'push'
 
