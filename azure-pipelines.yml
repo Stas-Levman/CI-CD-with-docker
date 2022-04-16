@@ -44,7 +44,7 @@ trigger:
     - templates
     - README.md
     - dockerfile
-    - .'*''
+    - .'*'
 
 pool: 'self-hosted-stas'
 
