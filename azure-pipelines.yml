@@ -95,7 +95,7 @@ stages:
   - group: vault secrets - stage
 
   jobs:
-  - deployment: Deploy
+  - deployment: deployToStage
     environment:
       name: stage
       resourceType: VirtualMachine
