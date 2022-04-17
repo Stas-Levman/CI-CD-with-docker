@@ -94,9 +94,10 @@ stages:
   
   variables: 
   - group: vault secrets - stage
+  - name: ip_address
+    value: $(az network public-ip show -g weight-tracker-stage-rg -n front-public-ip --query ipAddress | tr -d '"') 
 
   jobs:
-
   - deployment: deployToStage
     environment:
       name: stage
