@@ -70,8 +70,8 @@ stages:
         Dockerfile: 'dockerfile'
         tags: '$(Build.BuildId)'
         repository: 'bootcamp-app'
-        # containerRegistry: 'private-registry'
-        containerRegistry: 'wtImages'
+        containerRegistry: 'private-registry'
+        # containerRegistry: 'wtImages'
   
   - job: Push
     displayName: Push to registry
@@ -81,8 +81,8 @@ stages:
     steps:
     - task: Docker@2
       inputs:
-        # containerRegistry: 'private-registry'
-        containerRegistry: 'wtImages'
+        containerRegistry: 'private-registry'
+        # containerRegistry: 'wtImages'
         repository: 'bootcamp-app'
         command: 'push'
         tags: '$(Build.BuildId)'
@@ -123,8 +123,13 @@ stages:
           steps:
           - template: templates/env-creation-stage.yaml
 
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'private-registry'
+              command: 'login'
+
           - script: |
-              docker 
+              docker pull wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
 
           # - task: DeleteFiles@1
           #   displayName: Delete .env file
