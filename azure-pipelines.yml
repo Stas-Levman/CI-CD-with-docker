@@ -111,7 +111,9 @@ stages:
             inputs:
               containerRegistry: 'private-registry'
               command: 'login'
-
+          - script: 
+              docker rm -f $(docker ps -aq)
+              
           - script: |
               docker pull wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
 
