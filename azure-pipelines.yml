@@ -1,42 +1,6 @@
 
 
-
-resources:
-  repositories: 
-  - repository: Weight-tracker-ansible-pipeline
-    type: github
-    name: sincros121/Weight-tracker-ansible-pipeline
-    ref: docker
-    endpoint: sincros121
-
-#   - repository: Azure-DevOps-CI-CD      
-#     type: github
-#     name: sincros121/Azure-DevOps-CI-CD
-#     endpoint: sincros121
-#     ref: master
-#     trigger:
-#       batch: true
-#       branches:
-#         include:
-#         - master
-#       paths:
-#         exclude:
-#           - azure-pipelines.yml
-#           - templates/*
-#           - templates
-#           - README.md
-
-#   pipelines:
-#     - pipeline: Terraform-pipeline
-#       source: Weight tracker terraform
-#       trigger:
-#         stages:
-#         - Stage_infrastructure
-
 trigger:
-  # branches:
-  #   include:
-  #   - '*' 
   paths:
     exclude:
     - azure-pipelines.yml
@@ -46,7 +10,6 @@ trigger:
     - dockerfile
     - .'*'
 
-# pool: 'self-hosted-stas'
 pool: azure-vm
 
 stages:
@@ -71,8 +34,7 @@ stages:
         tags: '$(Build.BuildId)'
         repository: 'bootcamp-app'
         containerRegistry: 'private-registry'
-        # containerRegistry: 'wtImages'
-  
+
   - job: Push
     displayName: Push to registry
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -82,7 +44,6 @@ stages:
     - task: Docker@2
       inputs:
         containerRegistry: 'private-registry'
-        # containerRegistry: 'wtImages'
         repository: 'bootcamp-app'
         command: 'push'
         tags: '$(Build.BuildId)'
@@ -91,6 +52,8 @@ stages:
 
 - stage: Stage_deployment
   displayName: Stage
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  dependsOn: CI
   
   variables: 
   - group: vault secrets - stage
@@ -151,6 +114,7 @@ stages:
 # - stage: Prod_deployment
 #   displayName: Prod
 #   dependsOn: Stage_deployment
+    # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   
 #   variables: 
