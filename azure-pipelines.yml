@@ -71,7 +71,7 @@ stages:
         tags: '$(Build.BuildId)'
         repository: 'bootcamp-app'
         containerRegistry: 'private-registry'
-
+        # containerRegistry: 'wtImages'
   
   - job: Push
     displayName: Push to registry
@@ -82,6 +82,7 @@ stages:
     - task: Docker@2
       inputs:
         containerRegistry: 'private-registry'
+        # containerRegistry: 'wtImages'
         repository: 'bootcamp-app'
         command: 'push'
         tags: '$(Build.BuildId)'
@@ -95,6 +96,7 @@ stages:
   - group: vault secrets - stage
 
   jobs:
+
   - deployment: deployToStage
     environment:
       name: stage
@@ -103,27 +105,32 @@ stages:
       runOnce:
         deploy:
           steps:
-          - checkout: Weight-tracker-ansible-pipeline
-            displayName: Clone latest ansible repo
-
-          - task: Ansible@0
-            displayName: Ensure docker is installed on all machines
-            inputs:
-              ansibleInterface: 'agentMachine'
-              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/VM-configure.yaml'
-              inventoriesAgentMachine: 'noInventory'
-              failOnStdErr: false
-              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-
           - template: templates/env-creation-stage.yaml
 
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'private-registry'
+              command: 'login'
+          - script: 
+              docker rm -f $(docker ps -aq) || true
+              
+          - script: |
+              docker pull wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
+
+          - script: |
+              docker create -p 8080:8080 --restart always --name wt wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
+
+          - script: |
+              docker cp $(System.DefaultWorkingDirectory)/.env wt:/bootcamp-app/
+
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'private-registry'
+              command: 'start'
+              container: 'wt'
+          
           
 
-          # - task: DeleteFiles@1
-          #   displayName: Delete .env file
-          #   inputs:
-          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
-          #     Contents: '.env'
   
 
 
