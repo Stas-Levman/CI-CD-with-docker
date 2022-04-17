@@ -71,6 +71,8 @@ stages:
           steps:
           - template: templates/env-creation-stage.yaml
 
+          - template: templates/Okta-API-call-stage.yaml
+
           - task: Docker@2
             displayName: Login to private registry
             inputs:
@@ -130,6 +132,8 @@ stages:
         deploy:
           steps:
           - template: templates/env-creation-prod.yaml
+
+          - template: templates/Okta-API-call-prod.yaml
 
           - task: Docker@2
             displayName: Login to private registry
