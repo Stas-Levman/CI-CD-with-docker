@@ -97,22 +97,6 @@ stages:
 
   jobs:
 
-  # - job: installDocker
-  #   displayName: Install docker
-
-  #   steps:
-  #   - checkout: Weight-tracker-ansible-pipeline
-  #     displayName: Clone latest ansible repo
-      
-  #   - task: Ansible@0
-  #     displayName: Ensure docker is installed on all machines
-  #     inputs:
-  #       ansibleInterface: 'agentMachine'
-  #       playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/VM-configure.yaml'
-  #       inventoriesAgentMachine: 'noInventory'
-  #       failOnStdErr: false
-  #       args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-
   - deployment: deployToStage
     environment:
       name: stage
@@ -131,11 +115,20 @@ stages:
           - script: |
               docker pull wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
 
-          # - task: DeleteFiles@1
-          #   displayName: Delete .env file
-          #   inputs:
-          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
-          #     Contents: '.env'
+          - script: |
+              docker create -p 8080:8080 --restart always --name wt wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
+
+          - script: |
+              docker cp $(System.DefaultWorkingDirectory)/.env wt:/bootcamp-app/
+
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'private-registry'
+              command: 'start'
+              container: 'wt'
+          
+          
+
   
 
 
