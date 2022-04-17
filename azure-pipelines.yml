@@ -1,42 +1,6 @@
 
 
-
-resources:
-  repositories: 
-  - repository: Weight-tracker-ansible-pipeline
-    type: github
-    name: sincros121/Weight-tracker-ansible-pipeline
-    ref: docker
-    endpoint: sincros121
-
-#   - repository: Azure-DevOps-CI-CD      
-#     type: github
-#     name: sincros121/Azure-DevOps-CI-CD
-#     endpoint: sincros121
-#     ref: master
-#     trigger:
-#       batch: true
-#       branches:
-#         include:
-#         - master
-#       paths:
-#         exclude:
-#           - azure-pipelines.yml
-#           - templates/*
-#           - templates
-#           - README.md
-
-#   pipelines:
-#     - pipeline: Terraform-pipeline
-#       source: Weight tracker terraform
-#       trigger:
-#         stages:
-#         - Stage_infrastructure
-
 trigger:
-  # branches:
-  #   include:
-  #   - '*' 
   paths:
     exclude:
     - azure-pipelines.yml
@@ -46,7 +10,6 @@ trigger:
     - dockerfile
     - .'*'
 
-# pool: 'self-hosted-stas'
 pool: azure-vm
 
 stages:
@@ -71,8 +34,7 @@ stages:
         tags: '$(Build.BuildId)'
         repository: 'bootcamp-app'
         containerRegistry: 'private-registry'
-        # containerRegistry: 'wtImages'
-  
+
   - job: Push
     displayName: Push to registry
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -82,7 +44,6 @@ stages:
     - task: Docker@2
       inputs:
         containerRegistry: 'private-registry'
-        # containerRegistry: 'wtImages'
         repository: 'bootcamp-app'
         command: 'push'
         tags: '$(Build.BuildId)'
@@ -91,12 +52,15 @@ stages:
 
 - stage: Stage_deployment
   displayName: Stage
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  dependsOn: CI
   
   variables: 
   - group: vault secrets - stage
+  - name: ip_address
+    value: $(az network public-ip show -g weight-tracker-stage-rg -n front-public-ip --query ipAddress | tr -d '"') 
 
   jobs:
-
   - deployment: deployToStage
     environment:
       name: stage
@@ -107,81 +71,101 @@ stages:
           steps:
           - template: templates/env-creation-stage.yaml
 
+          - template: templates/Okta-API-call-stage.yaml
+
           - task: Docker@2
+            displayName: Login to private registry
             inputs:
               containerRegistry: 'private-registry'
               command: 'login'
-          - script: 
+
+          - script: |
               docker rm -f $(docker ps -aq) || true
+            displayName: Delete all previous containers
               
           - script: |
               docker pull wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
+            displayName: Pull latest application image
 
           - script: |
               docker create -p 8080:8080 --restart always --name wt wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
+            displayName: Create application container
 
           - script: |
               docker cp $(System.DefaultWorkingDirectory)/.env wt:/bootcamp-app/
+            displayName: Copy Env file to container appliaction directory
 
           - task: Docker@2
+            displayName: Start appliaction container
             inputs:
               containerRegistry: 'private-registry'
               command: 'start'
               container: 'wt'
+
+          - task: DeleteFiles@1
+            displayName: Delete Env file for working directory
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '.env'
           
           
+
 
   
-
-
-# - stage: Prod_deployment
-#   displayName: Prod
-#   dependsOn: Stage_deployment
-
+- stage: Prod_deployment
+  displayName: Prod
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  dependsOn: Stage_deployment
   
-#   variables: 
-#   - group: vault secrets - prod
-#   - name: ip_address
-#     value: $(az network public-ip show -g weight-tracker-prod-rg -n front-public-ip --query ipAddress | tr -d '"') 
+  variables: 
+  - group: vault secrets - prod
+  - name: ip_address
+    value: $(az network public-ip show -g weight-tracker-prod-rg -n front-public-ip --query ipAddress | tr -d '"') 
 
-#   jobs:
-#   - deployment: Deploy
-#     environment: prod
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: Weight-tracker-ansible-pipeline
-#             displayName: Clone latest ansible repo
-          
-#           - task: UniversalPackages@0
-#             displayName: Download latest artifacts
-#             inputs:
-#               command: 'download'
-#               downloadDirectory: '$(System.DefaultWorkingDirectory)'
-#               feedsToUse: 'internal'
-#               vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
-#               vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
-#               vstsPackageVersion: '*'
+  jobs:
+  - deployment: deployToProd
+    environment:
+      name: prod
+      resourceType: VirtualMachine
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: templates/env-creation-prod.yaml
 
-#           - template: templates/env-creation-prod.yaml
+          - template: templates/Okta-API-call-prod.yaml
 
-#           - task: Ansible@0
-#             displayName: Deploy using ansible
-#             timeoutInMinutes: 6
-#             inputs:
-#               ansibleInterface: 'agentMachine'
-#               playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
-#               inventoriesAgentMachine: 'noInventory'
-#               args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-#               failOnStdErr: false
+          - task: Docker@2
+            displayName: Login to private registry
+            inputs:
+              containerRegistry: 'private-registry'
+              command: 'login'
 
-#           - task: DeleteFiles@1
-#             displayName: Delete .env file
-#             inputs:
-#               SourceFolder: '$(System.DefaultWorkingDirectory)'
-#               Contents: '.env'
+          - script: |
+              docker rm -f $(docker ps -aq) || true
+            displayName: Delete all previous containers
               
+          - script: |
+              docker pull wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
+            displayName: Pull latest application image
 
+          - script: |
+              docker create -p 8080:8080 --restart always --name wt wtregistry01.azurecr.io/bootcamp-app:$(Build.BuildId)
+            displayName: Create application container
 
-              
+          - script: |
+              docker cp $(System.DefaultWorkingDirectory)/.env wt:/bootcamp-app/
+            displayName: Copy Env file to container appliaction directory
+
+          - task: Docker@2
+            displayName: Start appliaction container
+            inputs:
+              containerRegistry: 'private-registry'
+              command: 'start'
+              container: 'wt'
+
+          - task: DeleteFiles@1
+            displayName: Delete Env file for working directory
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '.env'
