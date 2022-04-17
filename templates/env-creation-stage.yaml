@@ -1,16 +1,4 @@
 
-
-# steps:
-# - script: |
-#     echo "
-#     PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
-#     PGPASSWORD=$(weight-tracker-PSQL-db-password)
-#     HOST_URL=http://$(ip_address):8080
-#     COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
-#     OKTA_CLIENT_ID=$(OKTA-client-ID-stage)
-#     OKTA_CLIENT_SECRET=$(okta-client-secret-stage)" | cat > docker-env.txt
-#   displayName: Create docker env file
-
 steps:
 - script: |
     echo "
